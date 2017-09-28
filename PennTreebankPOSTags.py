@@ -24,6 +24,6 @@ POS_TAGS = [
   'RB', 'RBR', 'RBS', 'RP',
   'SYM', 'TO', 'UH',
   'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ',
-  'WDT', 'WP', 'WP$', 'WRB'
+  'WDT', 'WP', 'WP$', 'WRB',
   '$', '#', '``', '\'\'', '-LRB-', '-RRB-', ',', '.', ':'
 ]
