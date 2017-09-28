@@ -23,7 +23,7 @@ class POSTagModelTrainer():
 
   def train(self):
     list_of_labelled_words = self.LIST_OF_WORD_POSTAG_PAIRS # [['its', 'PRP$'], ['to', 'TO'] ...]
-
+    self.HMMProbGenerator.generate_probs()
 
   """
   Loads the training data in-memory and splits each token on ' '
@@ -34,6 +34,16 @@ class POSTagModelTrainer():
     list_of_str_postag = self.tokenizer.tokenize_document(self.DATA_TRAIN)
     list_of_word_postag_pairs = self.tokenizer.get_pairs_of_word_tags(list_of_str_postag)
     return list_of_word_postag_pairs
+
+
+  #=====================================================#
+  # DEBUGGING HELPER FUNCTIONS
+  #=====================================================#
+  def findTokenPair(self, word1):
+    for index, postag_pairs in enumerate(self.LIST_OF_WORD_POSTAG_PAIRS):
+      if postag_pairs[0] == word1:
+        return [index, postag_pairs[0], postag_pairs[1]]
+    return None
 
 #=====================================================#
 # EXECUTION OF PROGRAM
