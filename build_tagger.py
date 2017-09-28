@@ -2,19 +2,28 @@
 import sys
 
 # Import custom modules
-from Tokenizer import Tokenizer
 from PennTreebankPOSTags import POS_TAGS
+from Tokenizer import Tokenizer
+from HMMProbGenerator import HMMProbGenerator
 
 #=====================================================#
 # TRAINING THE POS TAGGER
 #=====================================================#
 class POSTagModelTrainer():
   def __init__(self):
-    print('__init__')
+    # Set up tokenizer before everything else
     self.tokenizer = Tokenizer()
 
+    # Initialized constants
+    self.DATA_TRAIN = open(PATH_TO_DATA_TRAIN).read()
+    self.LIST_OF_WORD_POSTAG_PAIRS = self.load_training_data()
+
+    # Set up HMM probabilities for viterbi algo computation
+    self.HMMProbGenerator = HMMProbGenerator(self.LIST_OF_WORD_POSTAG_PAIRS)
+
   def train(self):
-    list_of_labelled_words = self.load_training_data() # [['its', 'PRP$'], ['to', 'TO'] ...]
+    list_of_labelled_words = self.LIST_OF_WORD_POSTAG_PAIRS # [['its', 'PRP$'], ['to', 'TO'] ...]
+
 
   """
   Loads the training data in-memory and splits each token on ' '
@@ -22,8 +31,7 @@ class POSTagModelTrainer():
   return        List of strings in the format ['<word1>/<pos_tag1>', '<word2>/<pos_tag2>', ...]
   """
   def load_training_data(self):
-    DATA_TRAIN = open(PATH_TO_DATA_TRAIN).read()
-    list_of_str_postag = self.tokenizer.tokenize_document(DATA_TRAIN)
+    list_of_str_postag = self.tokenizer.tokenize_document(self.DATA_TRAIN)
     list_of_word_postag_pairs = self.tokenizer.get_pairs_of_word_tags(list_of_str_postag)
     return list_of_word_postag_pairs
 
