@@ -27,16 +27,38 @@ class HMMProbGenerator():
   """
   def generate_probs(self):
     self.generate_prob_word_given_tag()
-    print(self.PROB_WORD_GIVEN_TAG)
-    return 'probs'
+    self.generate_prob_tag_given_tag()
 
   #=====================================================#
   # GENERATE P(t_i | t_i-1) AND P(w_i | t_i) PROBABILITIES
   #=====================================================#
+  """
+  Generates P(t_i | t_i-1) bigram tags' occurrence probability matrix
+  Modifies self.PROB_TAG_GIVEN_TAG
+  """
   def generate_prob_tag_given_tag(self):
+    # Count number of tags at position (i) following another tag at position (i + 1)
+    WORD_POSTAG_PAIRS_LENGTH = len(self.WORD_POSTAG_PAIRS)
+    for i in range(WORD_POSTAG_PAIRS_LENGTH):
+      if i + 1 < WORD_POSTAG_PAIRS_LENGTH: # prevents index out of bounds
+        bi_tag_i_minus_1 = self.WORD_POSTAG_PAIRS[i][1]
+        bi_tag_i = self.WORD_POSTAG_PAIRS[i + 1][1]
+        self.PROB_TAG_GIVEN_TAG[bi_tag_i_minus_1][bi_tag_i] += 1
+
+    # Convert to log probability form raw counts
+    for tag_i_minus_1 in self.PROB_TAG_GIVEN_TAG:
+      for tag_i in self.PROB_TAG_GIVEN_TAG[tag_i_minus_1]:
+        if self.POSTAG_VOCAB[tag_i_minus_1] != 0:
+          # Raw counts to probability
+          self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = \
+            self.log_base_10(self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] / self.POSTAG_VOCAB[tag_i_minus_1])
 
     return None
 
+  """
+  Generates P(w_i | t_i) word and POS tag occurrence probability matrix
+  Modifies self.PROB_WORD_GIVEN_TAG
+  """
   def generate_prob_word_given_tag(self):
     # Count number of words co-occurring with a given tag & mutate PROB_WORD_GIVEN_TAG matrix
     for word_postag_pair in self.WORD_POSTAG_PAIRS:
@@ -49,28 +71,22 @@ class HMMProbGenerator():
     for postag in self.PROB_WORD_GIVEN_TAG:
       for word in self.PROB_WORD_GIVEN_TAG[postag]:
         if self.POSTAG_VOCAB[postag] != 0: # prevents division by 0 errors
-          # Probability to raw counts
+          # Raw counts to probability
           self.PROB_WORD_GIVEN_TAG[postag][word] = \
             self.log_base_10(self.PROB_WORD_GIVEN_TAG[postag][word] / self.POSTAG_VOCAB[postag])
         else:
           self.PROB_WORD_GIVEN_TAG[postag][word] = 0
 
-  def count_word_tagged_as_tag(self, word, tag):
-    count = 0
-    for word_postag_pair in self.WORD_POSTAG_PAIRS:
-      pair_word = word_postag_pair[0]
-      pair_postag = word_postag_pair[1]
-
-      if pair_word == word and pair_postag == tag:
-        count += 1
-    return count
+    return None
 
   #=====================================================#
   # INITIALIZE ALL PROBABILITY MATRICES NEEDED FOR VITERBI
   #=====================================================#
   """
   Initializes matrix representing bigram tags' occurrence probabilities, i.e.
-  P(t_i | t_i-1)
+  P(t_i | t_i-1).
+  Rows: t_i-1
+  Cols: t_i
 
   return    Dictionary of POS tags at (i-1)th position with nested Dictionary
             of POS tags at (i)th position
@@ -86,6 +102,8 @@ class HMMProbGenerator():
   """
   Initializes matrix representing word and POS tag occurrence probabilities, i.e.
   P(w_i | t_i)
+  Rows: t_i
+  Cols: w_i
 
   return    Dictionary of POS tags at (i)th position with nested Dictionary
             of words at (i)th position
