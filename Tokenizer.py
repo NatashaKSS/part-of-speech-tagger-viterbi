@@ -13,8 +13,7 @@ class Tokenizer():
     print("Tokenizer instantiated...")
 
   def get_test_data_tokens(self, doc_string):
-    return re.findall(r"[\w]+|[.,!?;\(\)\[\](...)('s)('d)(n't)('ll)]+", doc_string)
-
+    return re.findall(r"[\w]+|[.,!?;\(\)\[\](...)('s)('d)(n't)('ll)('S)('D)(N'T)('LL)]+", doc_string)
 
   """
   Tokenizes a string close to the Penn TreeBank tokenizer format.
@@ -56,5 +55,5 @@ class Tokenizer():
 
   # Converts a 'perhaps/RB' string to ['perhaps', 'RB']
   def __convert_to_word_postag_pair(self, str_postag):
-    str_postag_pair = str_postag.split('/')
+    str_postag_pair = str_postag.rsplit('/', 1)
     return [str_postag_pair[0], str_postag_pair[1]]
