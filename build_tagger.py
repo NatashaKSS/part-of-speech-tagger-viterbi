@@ -1,7 +1,9 @@
 # Import standard modules
 import sys
 
+# Import custom modules
 from Tokenizer import Tokenizer;
+from PennTreebankPOSTags import POS_TAGS;
 
 #=====================================================#
 # TRAINING THE POS TAGGER
@@ -11,9 +13,17 @@ class POSTagModelTrainer():
     print('__init__')
     self.tokenizer = Tokenizer()
 
+  def train(self):
+    list_of_str_postag = self.load_training_data()
+    list_of_word_postag_pairs = self.tokenizer.get_pairs_of_word_tags(list_of_str_postag)
+    print(POS_TAGS)
+  """
+  Loads the training data in-memory and splits each token on ' '
+
+  return        List of strings in the format '<word>/<pos tag>'
+  """
   def load_training_data(self):
-    DATA_TRAIN = open(PATH_TO_DATA_TRAIN).read().split()
-    print(DATA_TRAIN)
+    return open(PATH_TO_DATA_TRAIN).read().split()
 
 
 #=====================================================#
@@ -26,4 +36,4 @@ PATH_TO_DATA_MODEL = sys.argv[3]
 print("Training data:", PATH_TO_DATA_TRAIN + ", Devt Data:", PATH_TO_DATA_DEVT + ", Model file:", PATH_TO_DATA_MODEL)
 
 model = POSTagModelTrainer()
-model.load_training_data()
+model.train()
