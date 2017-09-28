@@ -15,7 +15,7 @@ class Tokenizer():
   return    List of tokens split according to the RegEX rules
   """
   def tokenize_document(self, doc_string):
-    return re.findall(r"[\w]+|[.,!?;\(\)\[\](...)('s)('d)(n't)]+", doc_string);
+    return re.findall(r"[\w]+|[.,!?;\(\)\[\](...)('s)('d)(n't)('ll)]+", doc_string);
 
   """
   Tokenizes a word & pos_tag
