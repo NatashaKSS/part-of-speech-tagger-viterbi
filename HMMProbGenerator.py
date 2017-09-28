@@ -1,6 +1,4 @@
-# Import standard modules
-import string
-import re
+import math
 
 class HMMProbGenerator():
   def __init__(self):
@@ -12,7 +10,7 @@ class HMMProbGenerator():
 
   bigram_counts    Dictionary of bigram counts
 
-  return           
+  return
   """
   def generate_probs(self):
     print('generate probs')

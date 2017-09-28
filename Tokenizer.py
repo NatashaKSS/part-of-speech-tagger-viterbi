@@ -2,11 +2,9 @@
 import string
 import re
 
-from functools import reduce
-
 # Import custom modules
-from PennTreebankPOSTags import START_MARKER;
-from PennTreebankPOSTags import END_MARKER;
+from PennTreebankPOSTags import START_MARKER
+from PennTreebankPOSTags import END_MARKER
 
 NEWLINE = 'NEWLINE' # represents the char \n
 
