@@ -36,8 +36,8 @@ class Tokenizer():
     return doc_string.split('\n')
 
   def insert_start_end_sentence_tags(self, sentences):
-    START_SENTENCE = NEWLINE + '/' + START_MARKER + ' '
-    END_SENTENCE = ' ' + NEWLINE + '/' + END_MARKER
+    START_SENTENCE = START_MARKER + '/' + START_MARKER + ' '
+    END_SENTENCE = ' ' + END_MARKER + '/' + END_MARKER
     return [START_SENTENCE + sentence.strip(' ') + END_SENTENCE for sentence in sentences]
 
   def flatten_list_of_sentences(self, sentences):

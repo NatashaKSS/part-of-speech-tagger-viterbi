@@ -3,7 +3,7 @@ import sys
 import math
 
 # Import custom modules
-from PennTreebankPOSTags import POS_TAGS
+from PennTreebankPOSTags import POS_TAGS, START_MARKER, END_MARKER
 
 class HMMProbGenerator():
   def __init__(self, word_postag_pairs):
@@ -28,6 +28,8 @@ class HMMProbGenerator():
   def generate_probs(self):
     self.generate_prob_word_given_tag()
     self.generate_prob_tag_given_tag()
+
+    print(self.PROB_WORD_GIVEN_TAG[START_MARKER])
 
   #=====================================================#
   # GENERATE P(t_i | t_i-1) AND P(w_i | t_i) PROBABILITIES
