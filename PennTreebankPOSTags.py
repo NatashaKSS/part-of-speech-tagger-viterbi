@@ -11,6 +11,7 @@ TODO: Refer to README for full table of POS tags used by the Penn Treebank corpu
 """
 
 POS_TAGS = [
+  '<s>', '</s>',
   'CC', 'CD', 'DT', 'EX', 'FW', 'IN',
   'JJ', 'JJR', 'JJS', 'LS', 'MD',
   'NN', 'NNS', 'NNP', 'NNPS',
