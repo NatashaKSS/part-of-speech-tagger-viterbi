@@ -12,9 +12,15 @@ class Tokenizer():
   def __init__(self):
     print("Tokenizer instantiated...")
 
+  #=====================================================#
+  # TOKENIZER FOR UNSEEN SENTENCES
+  #=====================================================#
   def get_test_data_tokens(self, doc_string):
     return re.findall(r"[\w]+|[.,!?;\(\)\[\](...)('s)('d)(n't)('ll)('S)('D)(N'T)('LL)]+", doc_string)
 
+  #=====================================================#
+  # TOKENIZER FOR LABELLED CORPUS
+  #=====================================================#
   """
   Tokenizes a string close to the Penn TreeBank tokenizer format.
   Extracts whole words, punctuations and apostrophes.
@@ -29,17 +35,22 @@ class Tokenizer():
     doc_str_with_S_E_tags = self.flatten_list_of_sentences(sentences_S_E_tags)
     return self.get_train_data_tokens(doc_str_with_S_E_tags)
 
+  # Terms in training data are separated by spaces, so this splits them
   def get_train_data_tokens(self, doc_string_with_S_E_tags):
     return doc_string_with_S_E_tags.split(' ')
 
+  # Sentences in training data are separated by '\n', so this splits them
   def get_sentences(self, doc_string):
     return doc_string.split('\n')
 
+  # Sandwich START & END of sentence markers between each sentence in a list of sentences
+  # Any leading and trailing space between sentences will be removed too
   def insert_start_end_sentence_tags(self, sentences):
     START_SENTENCE = START_MARKER + '/' + START_MARKER + ' '
     END_SENTENCE = ' ' + END_MARKER + '/' + END_MARKER
     return [START_SENTENCE + sentence.strip(' ') + END_SENTENCE for sentence in sentences]
 
+  # Stitch each sentence into 1 big String
   def flatten_list_of_sentences(self, sentences):
     return ' '.join(sentences)
 
