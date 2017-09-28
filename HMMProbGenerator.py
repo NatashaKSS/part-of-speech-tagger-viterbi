@@ -16,25 +16,19 @@ class HMMProbGenerator():
     self.PROB_TAG_GIVEN_TAG = self.initialize_prob_tag_given_tag()
     self.PROB_WORD_GIVEN_TAG = self.initialize_word_given_tag()
 
-    # Initialize all emission probabilities required for Viterbi Algorithm
-    self.generate_probs()
-
-  #=====================================================#
-  # VITERBI ALGORITHM
-  #=====================================================#
-
-  
-
   #=====================================================#
   # GENERATE P(t_i | t_i-1) AND P(w_i | t_i) PROBABILITIES
   #=====================================================#
   """
   Generate emission & transition probabilities from a labelled corpus
   Modifies self.PROB_TAG_GIVEN_TAG and self.PROB_WORD_GIVEN_TAG
+
+  return    Model as a list of 2 elements [P(t_i | t_i-1), P(w_i | t_i)]
   """
   def generate_probs(self):
     self.generate_prob_word_given_tag()
     self.generate_prob_tag_given_tag()
+    return [self.PROB_TAG_GIVEN_TAG, self.PROB_WORD_GIVEN_TAG]
 
   """
   Generates P(t_i | t_i-1) bigram tags' occurrence probability matrix
