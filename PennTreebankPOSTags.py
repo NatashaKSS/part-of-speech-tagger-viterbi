@@ -2,6 +2,8 @@
 Penn Treebank POS tags
 
 Uncommon tag names:
+<S>      e.g. start-of-sentence marker
+<E>      e.g. end-of-sentence marker
 ``       e.g. left quote "
 ''       e.g. right quote "
 -LRB-    e.g. (, [, {
@@ -10,8 +12,11 @@ Uncommon tag names:
 TODO: Refer to README for full table of POS tags used by the Penn Treebank corpus
 """
 
+START_MARKER = '<S>'
+END_MARKER = '<E>'
+
 POS_TAGS = [
-  '<s>', '</s>',
+  START_MARKER, END_MARKER,
   'CC', 'CD', 'DT', 'EX', 'FW', 'IN',
   'JJ', 'JJR', 'JJS', 'LS', 'MD',
   'NN', 'NNS', 'NNP', 'NNPS',
