@@ -43,13 +43,13 @@ class HMMProbGenerator():
         bi_tag_i = self.WORD_POSTAG_PAIRS[i + 1][1]
         self.PROB_TAG_GIVEN_TAG[bi_tag_i_minus_1][bi_tag_i] += 1
 
-    # Convert to log probability form raw counts
+    # Convert to probability from raw counts
     for tag_i_minus_1 in self.PROB_TAG_GIVEN_TAG:
       for tag_i in self.PROB_TAG_GIVEN_TAG[tag_i_minus_1]:
         if self.POSTAG_VOCAB[tag_i_minus_1] != 0:
           # Raw counts to probability
           self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = \
-            self.log_base_10(self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] / self.POSTAG_VOCAB[tag_i_minus_1])
+            self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] / self.POSTAG_VOCAB[tag_i_minus_1]
 
     return None
 
@@ -65,13 +65,13 @@ class HMMProbGenerator():
 
       self.PROB_WORD_GIVEN_TAG[pair_postag][pair_word] += 1
 
-    # Convert to log probability from raw counts
+    # Convert to probability from raw counts
     for postag in self.PROB_WORD_GIVEN_TAG:
       for word in self.PROB_WORD_GIVEN_TAG[postag]:
         if self.POSTAG_VOCAB[postag] != 0: # prevents division by 0 errors
           # Raw counts to probability
           self.PROB_WORD_GIVEN_TAG[postag][word] = \
-            self.log_base_10(self.PROB_WORD_GIVEN_TAG[postag][word] / self.POSTAG_VOCAB[postag])
+            self.PROB_WORD_GIVEN_TAG[postag][word] / self.POSTAG_VOCAB[postag]
         else:
           self.PROB_WORD_GIVEN_TAG[postag][word] = 0
 
