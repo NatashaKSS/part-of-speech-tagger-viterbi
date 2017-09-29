@@ -39,30 +39,57 @@ class POSTagger():
     print(tokens)
 
     # Initialize memo
-    memo = {}
+    memo = []
     for i in range(LEN_TOKENS):
-      memo[i] = [None] * LEN_POSTAG
+      memo.append([])
       for j in range(LEN_POSTAG):
-        memo[i][j] = 0
+        memo[i].append(0)
 
     for i in range(LEN_POSTAG):
       # Probability at '<S>' is 1 since it occurs for all documents
       memo[0][i] = 1
 
-    self.print_viterbi_state(memo, 2, tokens)
+    # Smoothing parameter
+    smooth_k = self.add_1_smoothing(tokens)
 
     # Compute most probable path
-    for i in range(LEN_TOKENS):
-      for j in range(LEN_POSTAG):
-        if i != 0 and j != 0 and j != LEN_POSTAG - 1: # exclude the first '<S>' word/tag and last state '<E>' word/tag
-          if tokens[i] in self.PROB_WORD_GIVEN_TAG[POS_TAGS[j]]:
-            memo[i][j] = memo[i][j - 1] * \
-                         self.PROB_TAG_GIVEN_TAG[POS_TAGS[j - 1]][POS_TAGS[j]] * \
-                         self.PROB_WORD_GIVEN_TAG[POS_TAGS[j]][tokens[i]]
+    best_indices = []
+    for i in range(LEN_POSTAG):
+      best_indices.append(0)
 
-    self.print_viterbi_state(memo, 2, tokens)
+    self.print_viterbi_state(memo, 4, tokens)
+
+    for i in range(1, LEN_TOKENS):
+      for j in range(LEN_POSTAG):
+
+        curr_max = 0
+        for k in range(LEN_POSTAG):
+          # print(tokens[i], POS_TAGS[j], 'v:', memo[i - 1][j], ', P(t_i-1, t_i):', self.PROB_TAG_GIVEN_TAG[POS_TAGS[j]][POS_TAGS[j]], ', P(w_i, t_i):', self.PROB_WORD_GIVEN_TAG[POS_TAGS[j]][tokens[i]])
+          transition_prob = memo[i - 1][k] * self.PROB_TAG_GIVEN_TAG[POS_TAGS[k]][POS_TAGS[j]]
+
+          if transition_prob > curr_max:
+            curr_max = transition_prob
+
+        if tokens[i] in self.PROB_WORD_GIVEN_TAG[POS_TAGS[j]]:
+          # For seen words
+          memo[i][j] = curr_max * self.PROB_WORD_GIVEN_TAG[POS_TAGS[j]][tokens[i]]
+        else:
+          # For unseen words
+          # # TODO: Implement way to handle unseen tokens
+          memo[i][j] = curr_max * 0
+
+    self.print_viterbi_state(memo, len(tokens), tokens)
+    # print(best_indices)
 
     return None
+
+  # res = 'Labor: '
+  # headers = ' '
+  # for postag in POS_TAGS:
+  #   headers = headers + str(postag) + ' '
+  #   res = res + str(self.PROB_WORD_GIVEN_TAG[postag]['Labor']) + ' '
+  # print(headers)
+  # print(res)
 
   def print_viterbi_state(self, memo, print_till_token_pos, tokens):
     for i in range(len(tokens)):
@@ -71,6 +98,34 @@ class POSTagger():
         for j in range(len(POS_TAGS)):
           print_result = print_result + str(memo[i][j]) + ' '
         print(print_result)
+
+  #=====================================================#
+  # TODO: SMOOTHING
+  # GOAL:
+  #   * Ensure probability of unseen words are not 0, or else, HMM will not work
+  #
+  # STRATEGY:
+  #   * Treat unseen words as though we've only seen them once
+  #     To penalize them even further, we could even make that probability only half as much, etc.
+  #=====================================================#
+  def add_1_smoothing(self, tokens):
+    unseen_count_pair = self.count_unseen_words(tokens)
+    vocab_size = self.count_seen_words() + unseen_count_pair[0]
+    seen_unseen_tokens = [unseen_count_pair[1], self.PROB_WORD_GIVEN_TAG[START_MARKER].keys()]
+    trained_tokens = [item for sublist in seen_unseen_tokens for item in sublist]
+    return 1 / len(trained_tokens)
+
+  def count_seen_words(self):
+    return len(self.PROB_WORD_GIVEN_TAG[START_MARKER].keys())
+
+  def count_unseen_words(self, tokens):
+    count = 0
+    unseens = []
+    for token in tokens:
+      if token not in self.PROB_WORD_GIVEN_TAG[START_MARKER]:
+        count += 1
+        unseens.append(token)
+    return [count, unseens]
 
   #=====================================================#
   # GENERATE TOKENS
