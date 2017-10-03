@@ -5,6 +5,9 @@ import math
 # Import custom modules
 from PennTreebankPOSTags import POS_TAGS, START_MARKER, END_MARKER
 
+# Define constants
+UNK = '<UNK>' # symbol representing out-of-vocabulary words
+
 class HMMProbGenerator():
   def __init__(self, word_postag_pairs):
     print("HMMProbGenerator instantiated...")
@@ -61,7 +64,7 @@ class HMMProbGenerator():
         if self.POSTAG_VOCAB[tag_i_minus_1] != 0:
           # Raw counts to probability
           self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = \
-            self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] / self.POSTAG_VOCAB[tag_i_minus_1]
+            float(self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i]) / float(self.POSTAG_VOCAB[tag_i_minus_1])
 
     return None
 
@@ -78,6 +81,9 @@ class HMMProbGenerator():
   """
   Generates P(w_i | t_i) word and POS tag occurrence probability matrix
   Modifies self.PROB_WORD_GIVEN_TAG
+
+  Also handles out-of-vocabulary words by assigning them with a count of
+  1 for every tag
   """
   def generate_prob_word_given_tag(self):
     # Count number of words co-occurring with a given tag & mutate PROB_WORD_GIVEN_TAG matrix
@@ -87,13 +93,17 @@ class HMMProbGenerator():
 
       self.PROB_WORD_GIVEN_TAG[pair_postag][pair_word] += 1
 
+    # Set count of out-of-vocabulary words to 1, normalized probability
+    for postag in self.PROB_WORD_GIVEN_TAG:
+      self.PROB_WORD_GIVEN_TAG[postag][UNK] += 1
+
     # Convert to probability from raw counts
     for postag in self.PROB_WORD_GIVEN_TAG:
       for word in self.PROB_WORD_GIVEN_TAG[postag]:
         if self.POSTAG_VOCAB[postag] != 0: # prevents division by 0 errors
           # Raw counts to probability
           self.PROB_WORD_GIVEN_TAG[postag][word] = \
-            self.PROB_WORD_GIVEN_TAG[postag][word] / self.POSTAG_VOCAB[postag]
+            float(self.PROB_WORD_GIVEN_TAG[postag][word]) / float(self.POSTAG_VOCAB[postag])
         else:
           self.PROB_WORD_GIVEN_TAG[postag][word] = 0
 
@@ -132,6 +142,7 @@ class HMMProbGenerator():
     prob_word_given_tag = {}
     for postag in POS_TAGS:
       prob_word_given_tag[postag] = {}
+      prob_word_given_tag[postag][UNK] = 0
       for word in self.WORD_VOCAB:
         prob_word_given_tag[postag][word] = 0
     return prob_word_given_tag
