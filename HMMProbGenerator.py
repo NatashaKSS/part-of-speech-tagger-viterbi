@@ -8,17 +8,29 @@ from PennTreebankPOSTags import POS_TAGS, START_MARKER, END_MARKER
 class HMMProbGenerator():
   def __init__(self, word_postag_pairs):
     print("HMMProbGenerator instantiated...")
-
-    # Initialized constants
     self.WORD_POSTAG_PAIRS = word_postag_pairs
+
+    #==================================================#
+    # Constructing the Vocabulary for words & tags
+    #==================================================#
+    # Vocabulary in this Dictionary format: { 'the': 41107, 'gracious': 1, ... }
     self.WORD_VOCAB = self.get_word_vocabulary_with_counts(word_postag_pairs)
+
+    # Vocabulary in this Dictionary format: { 'NN': 1123, 'VBN': 2323, ... }
     self.POSTAG_VOCAB = self.get_tag_vocabulary_with_counts(word_postag_pairs)
+
+    #==================================================#
+    # Initialize probabilities required for the model
+    #==================================================#
+    # Matrix representing P(t_i | t_i-1), where rows: t_i-1, cols: t_i
     self.PROB_TAG_GIVEN_TAG = self.initialize_prob_tag_given_tag()
+
+    # Matrix representing P(w_i | t_i),  where rows: t_i, cols: w_i
     self.PROB_WORD_GIVEN_TAG = self.initialize_word_given_tag()
 
-  #=====================================================#
+  #=======================================================#
   # GENERATE P(t_i | t_i-1) AND P(w_i | t_i) PROBABILITIES
-  #=====================================================#
+  #=======================================================#
   """
   Generate emission & transition probabilities from a labelled corpus
   Modifies self.PROB_TAG_GIVEN_TAG and self.PROB_WORD_GIVEN_TAG
@@ -53,7 +65,7 @@ class HMMProbGenerator():
 
     return None
 
-  #=====================================================#
+  #=============================================================#
   # TODO: Handle unknown words
   # Strategy: Add a new symbol <UNK> to represent unseen words in test data
   # For P(w_i | t_i), set it to
@@ -62,7 +74,7 @@ class HMMProbGenerator():
   #
   # Extension: Could add another symbol for words appearing less than some threshold
   # number of times, like <FEW>
-  #=====================================================#
+  #=============================================================#
   """
   Generates P(w_i | t_i) word and POS tag occurrence probability matrix
   Modifies self.PROB_WORD_GIVEN_TAG
