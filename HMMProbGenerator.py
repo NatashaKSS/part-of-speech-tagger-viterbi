@@ -1,6 +1,6 @@
 # Import standard modules
 import sys
-import math
+from math import log
 
 # Import custom modules
 from PennTreebankPOSTags import POS_TAGS, START_MARKER, END_MARKER
@@ -66,6 +66,10 @@ class HMMProbGenerator():
           self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = \
             float(self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i]) / float(self.POSTAG_VOCAB[tag_i_minus_1])
 
+        # Convert entry to log probability
+        value = self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i]
+        self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = log(value) if value != 0.0 else sys.float_info.min
+
     return None
 
   """
@@ -96,6 +100,10 @@ class HMMProbGenerator():
             float(self.PROB_WORD_GIVEN_TAG[postag][word]) / float(self.POSTAG_VOCAB[postag])
         else:
           self.PROB_WORD_GIVEN_TAG[postag][word] = 0
+
+        # Convert entry to log probability
+        value = self.PROB_WORD_GIVEN_TAG[postag][word]
+        self.PROB_WORD_GIVEN_TAG[postag][word] = log(value) if value != 0.0 else sys.float_info.min
 
     return None
 
@@ -175,9 +183,3 @@ class HMMProbGenerator():
       if postag in result: # check if key exists, just in case, although unneeded
         result[postag] = result[postag] + 1
     return result
-
-  def log_base_10(self, num):
-    if num == 0:
-      return 0
-    else:
-      return math.log(num, 10)
