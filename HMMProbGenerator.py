@@ -68,7 +68,7 @@ class HMMProbGenerator():
 
         # Convert entry to log probability
         value = self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i]
-        self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = log(value) if value != 0.0 else sys.float_info.min
+        self.PROB_TAG_GIVEN_TAG[tag_i_minus_1][tag_i] = log(value) if value != 0.0 else log(sys.float_info.min)
 
     return None
 
@@ -103,7 +103,7 @@ class HMMProbGenerator():
 
         # Convert entry to log probability
         value = self.PROB_WORD_GIVEN_TAG[postag][word]
-        self.PROB_WORD_GIVEN_TAG[postag][word] = log(value) if value != 0.0 else sys.float_info.min
+        self.PROB_WORD_GIVEN_TAG[postag][word] = log(value) if value != 0.0 else log(sys.float_info.min)
 
     return None
 
