@@ -6,7 +6,9 @@ import re
 from PennTreebankPOSTags import START_MARKER
 from PennTreebankPOSTags import END_MARKER
 
+# Define constants
 NEWLINE = 'NEWLINE' # represents the char \n
+UNK = '<UNK>' # symbol representing out-of-vocabulary words
 
 class Tokenizer():
   def __init__(self):
@@ -26,8 +28,9 @@ class Tokenizer():
 
   return    List of tokens split according to the RegEX rules
   """
-  def tokenize_test_document(self, doc_string):
+  def tokenize_test_document(self, doc_string, word_vocab):
     doc_tokens = self.get_test_data_tokens(doc_string)
+    doc_tokens = self.replace_unseen_tokens_with_UNK(doc_tokens, word_vocab)
     return self.remove_empty_sentence_at_end(doc_tokens)
 
   # Removes the 'S' and 'E' at the back of [...'<S>', '', '<E>'].
@@ -53,6 +56,15 @@ class Tokenizer():
   # Terms in test data are separated by spaces, so this splits them
   def get_test_data_tokens(self, doc_string_with_S_E):
     return doc_string_with_S_E.split(' ')
+
+  def replace_unseen_tokens_with_UNK(self, tokens, word_vocab):
+    result = []
+    for token in tokens:
+      if token not in word_vocab:
+        result.append(UNK)
+      else:
+        result.append(token)
+    return result
 
   # == UNUSED ==
   # Tokenizes some raw corpus based on these RegEX rules.
