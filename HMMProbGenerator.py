@@ -82,10 +82,10 @@ class HMMProbGenerator():
   def generate_prob_word_given_tag(self):
     # Count number of words co-occurring with a given tag & mutate PROB_WORD_GIVEN_TAG matrix
     for word_postag_pair in self.WORD_POSTAG_PAIRS:
-      pair_word = word_postag_pair[0]
-      pair_postag = word_postag_pair[1]
+      word = word_postag_pair[0]
+      postag = word_postag_pair[1]
 
-      self.PROB_WORD_GIVEN_TAG[pair_postag][pair_word] += 1
+      self.PROB_WORD_GIVEN_TAG[postag][word] += 1
 
     # Set count of out-of-vocabulary words to 1, normalized probability
     for postag in self.PROB_WORD_GIVEN_TAG:
