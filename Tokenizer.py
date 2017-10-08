@@ -38,7 +38,7 @@ class Tokenizer():
   def remove_empty_sentence_at_end(self, tokens):
     LENGTH_TOKENS = len(tokens)
     if LENGTH_TOKENS >= 3:
-      if tokens[LENGTH_TOKENS - 3] == START_MARKER and tokens[LENGTH_TOKENS - 1] == END_MARKER:
+      if tokens[LENGTH_TOKENS - 3] == START_MARKER and tokens[LENGTH_TOKENS - 2] == '' and tokens[LENGTH_TOKENS - 1] == END_MARKER:
         # in the format of [...'<S>', '', '<E>']
         return tokens[0 : -3]
 
