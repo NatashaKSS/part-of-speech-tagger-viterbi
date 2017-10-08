@@ -1,6 +1,7 @@
 # Import standard modules
 import string
 import re
+import math
 
 # Import custom modules
 from PennTreebankPOSTags import START_MARKER
@@ -12,7 +13,7 @@ UNK = '<UNK>' # symbol representing out-of-vocabulary words
 
 class Tokenizer():
   def __init__(self):
-    print("Tokenizer instantiated...")
+    print("== [Tokenizer instantiated] ==")
 
   #=====================================================#
   # TOKENIZER FOR UNSEEN SENTENCES
@@ -60,11 +61,14 @@ class Tokenizer():
   def replace_unseen_tokens_with_UNK(self, tokens, word_vocab):
     result = []
     for token in tokens:
-      if token not in word_vocab:
-        result.append(UNK)
-      else:
-        result.append(token)
+      result.append(self.replace_unseen_token_with_UNK(token, word_vocab))
     return result
+
+  def replace_unseen_token_with_UNK(self, token, word_vocab):
+    if token not in word_vocab:
+      return UNK
+    else:
+      return token
 
   # == UNUSED ==
   # Tokenizes some raw corpus based on these RegEX rules.
@@ -109,6 +113,10 @@ class Tokenizer():
   def flatten_list_of_sentences(self, sentences):
     return ' '.join(sentences)
 
+  # Stitch each token into 1 big String
+  def flatten_list_of_tokens(self, tokens):
+    return ' '.join(tokens)
+
   """
   Tokenizes a word & pos_tag. Ignores empty strings if they exist.
 
@@ -123,3 +131,35 @@ class Tokenizer():
   def __convert_to_word_postag_pair(self, str_postag):
     str_postag_pair = str_postag.rsplit('/', 1)
     return [str_postag_pair[0], str_postag_pair[1]]
+
+  #=====================================================#
+  # TOKENIZER FOR CROSS VALIDATOR
+  #=====================================================#
+  """
+  Extracts sentences of the form ["As/IN part/NN of/IN the/DT agreement/NN", ...]
+  into ["As part of the agreement ..."] and [['IN', 'NN', 'IN', 'DT', 'NN', ...]]
+  and returns them both as a 2-tuple.
+
+  sentences    List of sentence strings of the format
+               ["As/IN part/NN of/IN the/DT agreement/NN", ...]
+  word_vocab   List of all word types from the training set
+
+  return       2-tuple in the format of ["As part of the agreement ...", "You want ..."]
+               and [['IN', 'NN', 'IN', 'DT', 'NN', ...]]
+  """
+  def extract_tags_from_test_dataset(self, sentences, word_vocab):
+    list_of_sentence_in_str_form = []
+    list_of_postags = []
+    for i in range(len(sentences)):
+      sentence_str = ''
+      postags = []
+      list_of_token_tag_strs = sentences[i].split(' ')
+
+      for token_tag_str in list_of_token_tag_strs:
+        str_postag_pair = token_tag_str.rsplit('/', 1)
+        sentence_str += str_postag_pair[0] + ' '
+        postags.append(str_postag_pair[1])
+
+      list_of_sentence_in_str_form.append(sentence_str.strip())
+      list_of_postags.append(postags)
+    return (list_of_sentence_in_str_form, list_of_postags)
