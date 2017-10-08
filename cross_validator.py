@@ -3,6 +3,7 @@ import sys
 import string
 import re
 import math
+import pickle
 
 # Import custom modules
 from PennTreebankPOSTags import POS_TAGS
@@ -11,18 +12,17 @@ from PennTreebankPOSTags import END_MARKER
 from Tokenizer import Tokenizer
 from HMMProbGenerator import HMMProbGenerator
 from POSTagModelTrainer import POSTagModelTrainer
-
-# Define constants
+from POSTagger import POSTagger
 
 class CrossValidator():
   def __init__(self, PATH_TO_DATA_TRAIN):
-    print("Cross Validator instantiated...")
+    print('== [CrossValidator instantiated] ==')
 
     # Set up tokenizer before everything else
     self.tokenizer = Tokenizer()
 
-    # Set up the POS tagger
-    self.POS_tagger = POSTagModelTrainer(PATH_TO_DATA_TRAIN, validate=True)
+    # Set up the Model Trainer
+    self.POS_trainer = POSTagModelTrainer(PATH_TO_DATA_TRAIN, True)
 
     # Initialized constants
     self.DATA_TRAIN = open(PATH_TO_DATA_TRAIN).read()
@@ -31,13 +31,15 @@ class CrossValidator():
   # PREP DATASETS FOR 10-FOLD CROSS VALIDATION
   #=====================================================#
   def validate(self):
-    print('-- Cross Validation of the model --')
+    print('Validating model...please wait...')
 
     sentences = self.tokenizer.get_sentences(self.DATA_TRAIN)
     LEN_SENTENCES = len(sentences)
     ONE_FOLD_SIZE = int(math.floor(0.1 * LEN_SENTENCES))
 
+    acc_scores_so_far = []
     for i in range(10):
+      print('Performing validation on fold no.:', i)
       sentences = self.shift(sentences, ONE_FOLD_SIZE)
       test_sentences = sentences[-ONE_FOLD_SIZE:]
       training_sentences = sentences[0:-ONE_FOLD_SIZE]
@@ -50,6 +52,20 @@ class CrossValidator():
       # Training the model
       model = HMMProbGenerator(list_of_word_postag_pairs).generate_probs()
 
+      # Running the POS Tagger
+      self.POS_tagger = POSTagger('', '', model, True)
+
+      # Run the model on the test data
+      best_postags_and_gold_standard_tags = self.POS_tagger.run_with_provided_sentences(test_sentences)
+      best_postags = best_postags_and_gold_standard_tags[0]
+      gold_standard_tags = best_postags_and_gold_standard_tags[1]
+
+      # Compute accuracy
+      acc_scores_so_far.append(self.compute_accuracy(gold_standard_tags, best_postags))
+      print('Done validation on fold no.:', i, '!')
+
+    print(acc_scores_so_far)
+
   """
   Shifts a list by n spaces to the right and returns a copy of that array
 
@@ -60,6 +76,49 @@ class CrossValidator():
   """
   def shift(self, arr, n):
     return arr[n:] + arr[:n]
+
+  """
+  Computes the accuracy of our predicted postags as compared to a list of
+  true positive postags.
+
+  true_postags    List of true positive POS tags in the format
+                  [['<S>', 'FW', 'FW', 'FW', 'NNP', 'NNP', '<E>'], ...]
+  test_postags    List of predicted POS tags in the format
+                  [['<S>', 'FW', 'FW', 'FW', 'NNP', 'NNP', '<E>'], ...], that
+                  is, a list of sentences where each sentence is a list of
+                  every word's tag
+
+  return          Percentage accuracy of our model on the testset in a single
+                  10-fold cross validation runthrough
+  """
+  def compute_accuracy(self, true_postags, test_postags):
+    N = self.compute_accuracy_N(test_postags)
+    correct = 0
+
+    for i in range(len(test_postags)):
+      for j in range(len(test_postags[i])):
+        if test_postags[i][j] == true_postags[i][j]:
+          correct += 1
+
+    return float(correct) / float(N)
+
+  """
+  Helper function for compute_accuracy to compute the total number of tags in
+  our entire test set
+
+  test_postags    List of predicted POS tags in the format
+                  [['<S>', 'FW', 'FW', 'FW', 'NNP', 'NNP', '<E>'], ...], that
+                  is, a list of sentences where each sentence is a list of every
+                  word's tag
+
+  return          Total number of tags in the entire test set
+  """
+  def compute_accuracy_N(self, test_postags):
+    N = 0
+    for sentence in test_postags:
+      for postag in sentence:
+        N = N + 1
+    return N
 
 #=====================================================#
 # EXECUTION OF PROGRAM
