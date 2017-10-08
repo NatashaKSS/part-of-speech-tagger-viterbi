@@ -10,7 +10,7 @@ UNK = '<UNK>' # symbol representing out-of-vocabulary words
 
 class HMMProbGenerator():
   def __init__(self, word_postag_pairs):
-    print("HMMProbGenerator instantiated...")
+    print("== [HMMProbGenerator instantiated] ==")
     self.WORD_POSTAG_PAIRS = word_postag_pairs
 
     #==================================================#

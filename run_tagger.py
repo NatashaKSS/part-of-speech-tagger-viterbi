@@ -15,6 +15,6 @@ PATH_TO_DATA_TEST = sys.argv[1]
 PATH_TO_DATA_MODEL = sys.argv[2]
 PATH_TO_DATA_TEST_LABELLED = sys.argv[3]
 
-print("Test data:", PATH_TO_DATA_TEST + ", Model:", PATH_TO_DATA_MODEL + ", labelled test data:", PATH_TO_DATA_TEST_LABELLED)
+print("sents.test:", PATH_TO_DATA_TEST + ", model_file:", PATH_TO_DATA_MODEL + ", labelled test data sents.out:", PATH_TO_DATA_TEST_LABELLED)
 
 tagger = POSTagger(PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL).run()
