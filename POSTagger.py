@@ -14,34 +14,60 @@ UNK = '<UNK>'
 # RUNNING THE POS TAGGER
 #=====================================================#
 class POSTagger():
-  def __init__(self, PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL, validate=False):
-    if validate:
-      print("== CROSS VALIDATION MODE ==")
+  def __init__(self, PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL, model=None, VALIDATE_MODE=False):
+    MODEL = None
+    if VALIDATE_MODE:
+      print("== [POSTagger instantiated] CROSS VALIDATION MODE ==")
+      MODEL = model
     else:
+      print("== [POSTagger instantiated] ==")
       self.PATH_TO_DATA_TEST = PATH_TO_DATA_TEST
       self.PATH_TO_DATA_MODEL = PATH_TO_DATA_MODEL
       MODEL = self.load_model()
 
-      # Matrix representing P(t_i | t_i-1), where rows: t_i-1, cols: t_i
-      self.PROB_TAG_GIVEN_TAG = MODEL[0]
+    # Matrix representing P(t_i | t_i-1), where rows: t_i-1, cols: t_i
+    self.PROB_TAG_GIVEN_TAG = MODEL[0]
 
-      # Matrix representing P(w_i | t_i),  where rows: t_i, cols: w_i
-      self.PROB_WORD_GIVEN_TAG = MODEL[1]
+    # Matrix representing P(w_i | t_i),  where rows: t_i, cols: w_i
+    self.PROB_WORD_GIVEN_TAG = MODEL[1]
 
-      # List of seen words
-      self.VOCAB_WORDS = self.PROB_WORD_GIVEN_TAG['NN'].keys()
+    # List of seen words
+    self.VOCAB_WORDS = self.PROB_WORD_GIVEN_TAG['NN'].keys()
 
-      self.tokenizer = Tokenizer()
+    self.tokenizer = Tokenizer()
 
   def run(self):
-    print("-- RUNNING THE PART OF SPEECH TAGGER --")
     sentences = self.load_document_as_sentences()
+    print(self.get_best_postags(sentences))
+
+  def run_with_provided_sentences(self, sentences):
+    return self.get_best_postags_for_cross_validation(sentences)
+
+  def get_best_postags(self, sentences):
+    print("-- RUNNING THE PART OF SPEECH TAGGER --")
     sen_as_tokens_list = self.generate_tokens_for_test_doc_sentences(sentences, self.VOCAB_WORDS)
 
-    for sen_tokens in sen_as_tokens_list:
-      print('\n', self.tag(sen_tokens), '\n========')
+    best_postags_list = []
+    for i in range(len(sen_as_tokens_list)):
+      best_postags = self.tag(sen_as_tokens_list[i])
+      best_postags_list.append(best_postags)
+    return best_postags_list
 
-    return None
+  # sentences = ['<S>/<S> The/DT ...', '<S>/<S> The/DT']
+  def get_best_postags_for_cross_validation(self, sentences):
+    print("-- RUNNING THE PART OF SPEECH TAGGER FOR CROSS VALIDATION --")
+    sentences = self.tokenizer.insert_start_end_sentence_tags(sentences)
+    test_sentences_and_tags = self.tokenizer.extract_tags_from_test_dataset(sentences, self.VOCAB_WORDS)
+    test_sentences = test_sentences_and_tags[0]
+    test_tags = test_sentences_and_tags[1]
+
+    sen_as_tokens_list = self.generate_tokens_for_test_doc_sentences(test_sentences, self.VOCAB_WORDS)
+
+    best_postags_list = []
+    for i in range(len(sen_as_tokens_list)):
+      best_postags = self.tag(sen_as_tokens_list[i])
+      best_postags_list.append(best_postags)
+    return (best_postags_list, test_tags)
 
   #=====================================================#
   # VITERBI ALGORITHM
@@ -50,7 +76,7 @@ class POSTagger():
     LEN_TOKENS = len(tokens)
     LEN_POSTAG = len(POS_TAGS)
 
-    print(len(tokens), 'tokens like this: ', tokens)
+    # print(len(tokens), 'tokens like this: ', tokens)
 
     # Initialize memo & backpointers for the best tags
 
@@ -92,9 +118,7 @@ class POSTagger():
     found_best_postag_value = best_postag_at_end_of_sentence[0]
     found_best_postag_index = best_postag_at_end_of_sentence[1]
 
-    print(self.get_best_viterbi_path(best_postags, found_best_postag_index))
-
-    return None
+    return self.get_best_viterbi_path(best_postags, found_best_postag_index)
 
   def get_best_viterbi_path(self, back_ptrs, best_end_of_sentence_back_ptr):
     # to traverse a sentence from last POS tag to 1st POS tag
@@ -118,6 +142,7 @@ class POSTagger():
   #=====================================================#
   # GENERATE TOKENS
   #=====================================================#
+  # sentences in the format: ['<S> The cow...', '<S> The man...', ...]
   def generate_tokens_for_test_doc_sentences(self, sentences, word_vocab):
     sen_as_tokens_list = [self.tokenizer.tokenize_test_document(sentence, word_vocab) for sentence in sentences]
     sen_as_tokens_list = [sen_tokens for sen_tokens in sen_as_tokens_list if sen_tokens != []] # remove any empty lists due to empty sentences
