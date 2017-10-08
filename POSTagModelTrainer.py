@@ -10,10 +10,11 @@ from HMMProbGenerator import HMMProbGenerator
 # TRAINING THE POS TAGGER
 #=====================================================#
 class POSTagModelTrainer():
-  def __init__(self, PATH_TO_DATA_TRAIN, validate=False):
-    if validate:
-      print("== CROSS VALIDATION MODE ==")
+  def __init__(self, PATH_TO_DATA_TRAIN, VALIDATE_MODE=False):
+    if VALIDATE_MODE:
+      print("== [POSTagModelTrainer instantiated] CROSS VALIDATION MODE ==")
     else:
+      print("== [POSTagModelTrainer instantiated] ==")
       # Set up tokenizer before everything else
       self.tokenizer = Tokenizer()
 
