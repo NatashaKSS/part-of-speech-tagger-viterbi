@@ -28,7 +28,7 @@ class CrossValidator():
     self.DATA_TRAIN = open(PATH_TO_DATA_TRAIN).read()
 
   #=====================================================#
-  # PREP DATASETS FOR 10-FOLD CROSS VALIDATION
+  # 10-FOLD CROSS VALIDATION
   #=====================================================#
   def validate(self):
     print('Validating model...please wait...')
@@ -65,6 +65,7 @@ class CrossValidator():
       print('Done validation on fold no.:', i, '!')
 
     print(acc_scores_so_far)
+    print("Average is:", self.get_average(acc_scores_so_far))
 
   """
   Shifts a list by n spaces to the right and returns a copy of that array
@@ -119,6 +120,20 @@ class CrossValidator():
       for postag in sentence:
         N = N + 1
     return N
+
+  """
+  Computes the average of a list of numbers
+
+  scores    List of numbers. In this context, it's the list of accuracy scores
+            after cross-validation
+
+  return    Average of a list of numbers
+  """
+  def get_average(self, scores):
+    total = 0
+    for score in scores:
+      total += score
+    return float(total) / len(scores)
 
 #=====================================================#
 # EXECUTION OF PROGRAM
