@@ -39,7 +39,7 @@ class CrossValidator():
 
     acc_scores_so_far = []
     for i in range(10):
-      print('Performing validation on fold no.:', i)
+      print('Performing validation on fold no.:', i + 1, 'please wait...')
       sentences = self.shift(sentences, ONE_FOLD_SIZE)
       test_sentences = sentences[-ONE_FOLD_SIZE:]
       training_sentences = sentences[0:-ONE_FOLD_SIZE]
@@ -62,10 +62,10 @@ class CrossValidator():
 
       # Compute accuracy
       acc_scores_so_far.append(self.compute_accuracy(gold_standard_tags, best_postags))
-      print('Done validation on fold no.:', i, '!')
+      print('Done validation on fold no.:', i + 1, '!', 10 - i, 'more to go!')
 
     print(acc_scores_so_far)
-    print("Average is:", self.get_average(acc_scores_so_far))
+    print("Average Cross Validation Score:", self.get_average(acc_scores_so_far))
 
   """
   Shifts a list by n spaces to the right and returns a copy of that array
