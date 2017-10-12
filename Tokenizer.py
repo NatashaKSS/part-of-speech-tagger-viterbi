@@ -10,6 +10,8 @@ from PennTreebankPOSTags import END_MARKER
 # Define constants
 NEWLINE = 'NEWLINE' # represents the char \n
 UNK = '<UNK>' # symbol representing out-of-vocabulary words
+NUM_SYMBOL = '<NUM>' # symbol representing numerics
+NUM_SYMBOL_REGEX = r'^(\d+[.,\-]*\d*)+$' # regex pattern to detect NUM_SYMBOL
 
 class Tokenizer():
   def __init__(self):
@@ -31,6 +33,7 @@ class Tokenizer():
   """
   def tokenize_test_document(self, doc_string, word_vocab):
     doc_tokens = self.get_test_data_tokens(doc_string)
+    doc_tokens = self.replace_numeric_tokens_with_NUM_SYMBOL(doc_tokens)
     doc_tokens = self.replace_unseen_tokens_with_UNK(doc_tokens, word_vocab)
     return self.remove_empty_sentence_at_end(doc_tokens)
 
@@ -69,6 +72,15 @@ class Tokenizer():
       return UNK
     else:
       return token
+
+  def replace_numeric_tokens_with_NUM_SYMBOL(self, tokens):
+    result = []
+    for token in tokens:
+      if re.match(NUM_SYMBOL_REGEX, token):
+        result.append(NUM_SYMBOL)
+      else:
+        result.append(token)
+    return result
 
   # == UNUSED ==
   # Tokenizes some raw corpus based on these RegEX rules.
@@ -131,7 +143,14 @@ class Tokenizer():
   # Converts a 'perhaps/RB' string to ['perhaps', 'RB']
   def __convert_to_word_postag_pair(self, str_postag):
     str_postag_pair = str_postag.rsplit('/', 1)
-    return [str_postag_pair[0], str_postag_pair[1]]
+
+    # RULES FOR TOKENS WE SEE DURING TRAINING
+    # This checks if a token is in our defined numeric format by using RegEx
+    # and replaces that token with an arbitrary symbol defined at the top of this code
+    if re.match(NUM_SYMBOL_REGEX, str_postag_pair[0]):
+      return [NUM_SYMBOL, str_postag_pair[1]]
+    else:
+      return [str_postag_pair[0], str_postag_pair[1]]
 
   #=====================================================#
   # TOKENIZER FOR CROSS VALIDATOR
