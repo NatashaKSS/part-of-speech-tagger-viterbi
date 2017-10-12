@@ -17,4 +17,9 @@ PATH_TO_DATA_TEST_LABELLED = sys.argv[3]
 
 print("sents.test:", PATH_TO_DATA_TEST + ", model_file:", PATH_TO_DATA_MODEL + ", labelled test data sents.out:", PATH_TO_DATA_TEST_LABELLED)
 
-tagger = POSTagger(PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL).run()
+# Get the best POS tags for the test set
+output = POSTagger(PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL).run()
+
+# Print to an output file. In this assignment, it is called 'sents.out'
+with open('sents.out', 'w') as sents_out_file:
+  sents_out_file.write(output)

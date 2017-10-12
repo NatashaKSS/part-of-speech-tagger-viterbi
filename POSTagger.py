@@ -38,7 +38,8 @@ class POSTagger():
 
   def run(self):
     sentences = self.load_document_as_sentences()
-    print(self.get_best_postags(sentences))
+    best_postags_with_sentences = [self.get_best_postags(sentences), [sentence.split(' ') for sentence in sentences]]
+    return self.format_best_postags_and_sentences(best_postags_with_sentences)
 
   def run_with_provided_sentences(self, sentences):
     return self.get_best_postags_for_cross_validation(sentences)
@@ -76,13 +77,10 @@ class POSTagger():
     LEN_TOKENS = len(tokens)
     LEN_POSTAG = len(POS_TAGS)
 
-    # print(len(tokens), 'tokens like this: ', tokens)
-
     # Initialize memo & backpointers for the best tags
-
-    # Visualize memo as a HMM network laid out
-    # Visualize best_postags as a HMM network laid out, denoting each viterbi
-    # node's best chosen backpointer to some previous viterbi node
+    #   Visualize memo as a HMM network laid out
+    #   Visualize best_postags as a HMM network laid out, denoting each viterbi
+    #   node's best chosen backpointer to some previous viterbi node
     memo = []
     best_postags = []
     for i in range(LEN_TOKENS):
@@ -140,13 +138,38 @@ class POSTagger():
     return list(reversed(best_pos_tag_sequence))
 
   #=====================================================#
-  # GENERATE TOKENS
+  # FORMAT TOKENS
   #=====================================================#
   # sentences in the format: ['<S> The cow...', '<S> The man...', ...]
   def generate_tokens_for_test_doc_sentences(self, sentences, word_vocab):
     sen_as_tokens_list = [self.tokenizer.tokenize_test_document(sentence, word_vocab) for sentence in sentences]
     sen_as_tokens_list = [sen_tokens for sen_tokens in sen_as_tokens_list if sen_tokens != []] # remove any empty lists due to empty sentences
     return sen_as_tokens_list
+
+  """
+  Formats the output of the Viterbi POS tagger in this Assignment's output
+  format.
+
+  postags_with_sents    In the format of
+                        [[<list_of_best_postags>, <list_of_test_sentences>]],
+                        where <list_of_best_postags> is the list of POS tags
+                        which corresponds to each entry in <list_of_test_sentences>
+
+  return       String in the format
+               '<word1>/<tag1> <word2>/<tag2>\n<word3>/<tag3>\n'
+  """
+  def format_best_postags_and_sentences(self, postags_with_sents):
+    result = ''
+    postags = postags_with_sents[0]
+    sentence_tokens = postags_with_sents[1]
+
+    for i in range(len(sentence_tokens)):
+      for j in range(len(sentence_tokens[i])):
+        if (postags[i][j] != START_MARKER and postags[i][j] != END_MARKER):
+          token_postag = sentence_tokens[i][j] + '/' + postags[i][j]
+          result += token_postag + ' '
+      result = result.strip() + '\n'
+    return result
 
   #=====================================================#
   # LOAD FILES & INITIALIZE MODEL
