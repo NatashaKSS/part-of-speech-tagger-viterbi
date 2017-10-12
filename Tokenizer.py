@@ -100,7 +100,8 @@ class Tokenizer():
 
   # Sentences in training data are separated by '\n', so this splits them
   def get_sentences(self, doc_string):
-    return doc_string.split('\n')
+    list_of_sentences = doc_string.split('\n')
+    return [x for x in list_of_sentences if len(x) > 0]
 
   # Sandwich START & END of sentence markers between each sentence in a list of sentences
   # Any leading and trailing space between sentences will be removed too
