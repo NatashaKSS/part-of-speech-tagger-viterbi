@@ -60,9 +60,17 @@ class CrossValidator():
       best_postags = best_postags_and_gold_standard_tags[0]
       gold_standard_tags = best_postags_and_gold_standard_tags[1]
 
+      if (i == 0):
+        result = ''
+        for j in range(len(best_postags)):
+          result += test_sentences[j] + '\n' + str(best_postags[j]) + '\n\n'
+
+        with open('cross-validation-result-1', 'w') as f:
+          f.write(result)
+
       # Compute accuracy
       acc_scores_so_far.append(self.compute_accuracy(gold_standard_tags, best_postags))
-      print('Done validation on fold no.:', i + 1, '!', 10 - i, 'more to go!')
+      print('COMPLETED validation on fold no.:', i + 1, '!', 10 - (i + 1), 'more to go!')
 
     print(acc_scores_so_far)
     print("Average Cross Validation Score:", self.get_average(acc_scores_so_far))
