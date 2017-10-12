@@ -76,8 +76,7 @@ class HMMProbGenerator():
   Generates P(w_i | t_i) word and POS tag occurrence probability matrix
   Modifies self.PROB_WORD_GIVEN_TAG
 
-  Also handles out-of-vocabulary words by assigning them with a count of
-  1 for every tag
+  Also handles out-of-vocabulary words by assigning them with a count of 1 for every tag
   """
   def generate_prob_word_given_tag(self):
     # Count number of words co-occurring with a given tag & mutate PROB_WORD_GIVEN_TAG matrix

@@ -25,8 +25,7 @@ class POSTagModelTrainer():
   def train(self):
     list_of_labelled_words = self.LIST_OF_WORD_POSTAG_PAIRS # [['its', 'PRP$'], ['to', 'TO'] ...]
     model = HMMProbGenerator(list_of_labelled_words).generate_probs()
-    pickle.dump(model, open('model_file', 'wb'))
-    print("--- FINISHED TRAINING...MODEL SAVED IN model_file ---")
+    return model
 
   """
   Loads the training data in-memory and tokenizes it.

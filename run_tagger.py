@@ -21,5 +21,5 @@ print("sents.test:", PATH_TO_DATA_TEST + ", model_file:", PATH_TO_DATA_MODEL + "
 output = POSTagger(PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL).run()
 
 # Print to an output file. In this assignment, it is called 'sents.out'
-with open('sents.out', 'w') as sents_out_file:
+with open(PATH_TO_DATA_TEST_LABELLED, 'w') as sents_out_file:
   sents_out_file.write(output)

@@ -14,4 +14,7 @@ PATH_TO_DATA_MODEL = sys.argv[3]
 
 print("Training data:", PATH_TO_DATA_TRAIN + ", Devt Data:", PATH_TO_DATA_DEVT + ", Model file:", PATH_TO_DATA_MODEL)
 
-POSTagModelTrainer(PATH_TO_DATA_TRAIN).train()
+model = POSTagModelTrainer(PATH_TO_DATA_TRAIN).train()
+
+pickle.dump(model, open(PATH_TO_DATA_MODEL, 'wb'))
+print("--- FINISHED TRAINING...MODEL SAVED IN " + PATH_TO_DATA_MODEL + " ---")
