@@ -13,6 +13,11 @@ UNK = '<UNK>' # symbol representing out-of-vocabulary words
 NUM_SYMBOL = '<NUM>' # symbol representing numerics
 NUM_SYMBOL_REGEX = r'^(\d+[.,\-]*\d*)+$' # regex pattern to detect NUM_SYMBOL
 
+#===========================================================================#
+# Tokenizer
+# Tokenizes the training set and test set sentences into token formats that
+# can be read my POSTagModelTrainer and POSTagger and CrossValidator.
+#===========================================================================#
 class Tokenizer():
   def __init__(self):
     print("== [Tokenizer instantiated] ==")
@@ -61,6 +66,7 @@ class Tokenizer():
   def get_test_data_tokens(self, doc_string_with_S_E):
     return doc_string_with_S_E.split(' ')
 
+  # Replace words not seen in the vocabulary with <UNK>
   def replace_unseen_tokens_with_UNK(self, tokens, word_vocab):
     result = []
     for token in tokens:
@@ -73,6 +79,7 @@ class Tokenizer():
     else:
       return token
 
+  # Replace numbers in vocabulary with <NUM>
   def replace_numeric_tokens_with_NUM_SYMBOL(self, tokens):
     result = []
     for token in tokens:

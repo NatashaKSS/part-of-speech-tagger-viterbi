@@ -10,9 +10,10 @@ from PennTreebankPOSTags import POS_TAGS, START_MARKER, END_MARKER
 # Define constants
 UNK = '<UNK>'
 
-#=====================================================#
-# RUNNING THE POS TAGGER
-#=====================================================#
+#===========================================================================#
+# POSTagger
+# Executes the viterbi & backpointer algorithms to generate the best POS tags
+#===========================================================================#
 class POSTagger():
   def __init__(self, PATH_TO_DATA_TEST, PATH_TO_DATA_MODEL, model=None, VALIDATE_MODE=False):
     MODEL = None
@@ -36,14 +37,18 @@ class POSTagger():
 
     self.tokenizer = Tokenizer()
 
+  # Runs the tagger and formats the result for sents.out
   def run(self):
     sentences = self.load_document_as_sentences()
     best_postags_with_sentences = [self.get_best_postags(sentences), [sentence.split(' ') for sentence in sentences]]
     return self.format_best_postags_and_sentences(best_postags_with_sentences)
 
+  # Runs the tagger for cross validation purposes
   def run_with_provided_sentences(self, sentences):
     return self.get_best_postags_for_cross_validation(sentences)
 
+  # Gets the best POS tag sequence for a list of input sentences, where sentences
+  # are of the form ['<S>/<S> The/DT ...', '<S>/<S> The/DT']
   def get_best_postags(self, sentences):
     print("-- RUNNING THE PART OF SPEECH TAGGER --")
     sen_as_tokens_list = self.generate_tokens_for_test_doc_sentences(sentences, self.VOCAB_WORDS)
@@ -54,9 +59,12 @@ class POSTagger():
       best_postags_list.append(best_postags)
     return best_postags_list
 
-  # sentences = ['<S>/<S> The/DT ...', '<S>/<S> The/DT']
+  # Gets the best POS tag sequence for a list of input sentences for cross
+  # validation, where sentences are of the form ['<S>/<S> The/DT ...', '<S>/<S> The/DT']
   def get_best_postags_for_cross_validation(self, sentences):
     print("-- RUNNING THE PART OF SPEECH TAGGER FOR CROSS VALIDATION --")
+
+    # Prep the sentences to tag using our tokenizer
     sentences = self.tokenizer.insert_start_end_sentence_tags(sentences)
     test_sentences_and_tags = self.tokenizer.extract_tags_from_test_dataset(sentences, self.VOCAB_WORDS)
     test_sentences = test_sentences_and_tags[0]
@@ -64,6 +72,7 @@ class POSTagger():
 
     sen_as_tokens_list = self.generate_tokens_for_test_doc_sentences(test_sentences, self.VOCAB_WORDS)
 
+    # Tag the provided list of sentences
     best_postags_list = []
     for i in range(len(sen_as_tokens_list)):
       best_postags = self.tag(sen_as_tokens_list[i])
@@ -77,10 +86,12 @@ class POSTagger():
     LEN_TOKENS = len(tokens)
     LEN_POSTAG = len(POS_TAGS)
 
-    # Initialize memo & backpointers for the best tags
-    #   Visualize memo as a HMM network laid out
+    # Initialize memo & backpointers for the best POS tags
     #   Visualize best_postags as a HMM network laid out, denoting each viterbi
     #   node's best chosen backpointer to some previous viterbi node
+    #
+    #   Visualize memo as a HMM network laid out, denoting each viterbi
+    #   node's best chosen emission probability from some previous viterbi node
     memo = []
     best_postags = []
     for i in range(LEN_TOKENS):
@@ -118,10 +129,10 @@ class POSTagger():
 
     return self.get_best_viterbi_path(best_postags, found_best_postag_index)
 
+  # To traverse a sentence from last POS tag to 1st POS tag
   def get_best_viterbi_path(self, back_ptrs, best_end_of_sentence_back_ptr):
-    # to traverse a sentence from last POS tag to 1st POS tag
-    # Note: ignore the 1st tag since its back ptr is undefined (i.e. there's no
-    #       reasonable back ptr for the 1st tag of a sentence)
+    # Note: ignore the 1st tag since its back pointer is undefined
+    #       (i.e. there's no reasonable back ptr for the 1st tag of a sentence)
     back_ptrs = list(reversed(back_ptrs[1:]))
     LEN_BACK_PTRS = len(back_ptrs)
 
@@ -140,7 +151,8 @@ class POSTagger():
   #=====================================================#
   # FORMAT TOKENS
   #=====================================================#
-  # sentences in the format: ['<S> The cow...', '<S> The man...', ...]
+  # Helper function to generate tokens needed for the Viterbi tagger from
+  # sentences in the format of ['<S> The cow...ate grass . <E>', '<S> The man...', ...]
   def generate_tokens_for_test_doc_sentences(self, sentences, word_vocab):
     sen_as_tokens_list = [self.tokenizer.tokenize_test_document(sentence, word_vocab) for sentence in sentences]
     sen_as_tokens_list = [sen_tokens for sen_tokens in sen_as_tokens_list if sen_tokens != []] # remove any empty lists due to empty sentences

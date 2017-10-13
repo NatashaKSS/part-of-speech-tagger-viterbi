@@ -14,6 +14,14 @@ from HMMProbGenerator import HMMProbGenerator
 from POSTagModelTrainer import POSTagModelTrainer
 from POSTagger import POSTagger
 
+#===========================================================================#
+# CrossValidator
+#
+# PERFORMS 10-FOLD CROSS VALIDATION OF OUR MODEL ON A SPECIFIED TRAINING SET.
+#
+# Prints the accuracies of each fold and the average accuracy of all 10 folds
+# to the console.
+#===========================================================================#
 class CrossValidator():
   def __init__(self, PATH_TO_DATA_TRAIN):
     print('== [CrossValidator instantiated] ==')
@@ -59,14 +67,6 @@ class CrossValidator():
       best_postags_and_gold_standard_tags = self.POS_tagger.run_with_provided_sentences(test_sentences)
       best_postags = best_postags_and_gold_standard_tags[0]
       gold_standard_tags = best_postags_and_gold_standard_tags[1]
-
-      if (i == 0):
-        result = ''
-        for j in range(len(best_postags)):
-          result += test_sentences[j] + '\n' + str(best_postags[j]) + '\n\n'
-
-        with open('cross-validation-result-1', 'w') as f:
-          f.write(result)
 
       # Compute accuracy
       acc_scores_so_far.append(self.compute_accuracy(gold_standard_tags, best_postags))
@@ -144,7 +144,7 @@ class CrossValidator():
     return float(total) / len(scores)
 
 #=====================================================#
-# EXECUTION OF PROGRAM
+# EXECUTION OF CrossValidator
 #=====================================================#
 PATH_TO_DATA_TRAIN = sys.argv[1]
 

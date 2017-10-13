@@ -6,9 +6,11 @@ import pickle
 from Tokenizer import Tokenizer
 from HMMProbGenerator import HMMProbGenerator
 
-#=====================================================#
-# TRAINING THE POS TAGGER
-#=====================================================#
+#===========================================================================#
+# POSTagModelTrainer
+# LOADS TRAINING DATA AND EXECUTES HMMProbGenerator TO GENERATE THE MODEL &
+# TRAIN THE POS TAGGER
+#===========================================================================#
 class POSTagModelTrainer():
   def __init__(self, PATH_TO_DATA_TRAIN, VALIDATE_MODE=False):
     if VALIDATE_MODE:
@@ -22,6 +24,12 @@ class POSTagModelTrainer():
       self.DATA_TRAIN = open(PATH_TO_DATA_TRAIN).read()
       self.LIST_OF_WORD_POSTAG_PAIRS = self.load_training_data()
 
+  """
+  Trains the model against our specified training set using the HMMProbGenerator
+  which helps us generate our model's probabilities.
+
+  return    The trained model, as a list of 2 elements [P(t_i | t_i-1), P(w_i | t_i)].
+  """
   def train(self):
     list_of_labelled_words = self.LIST_OF_WORD_POSTAG_PAIRS # [['its', 'PRP$'], ['to', 'TO'] ...]
     model = HMMProbGenerator(list_of_labelled_words).generate_probs()

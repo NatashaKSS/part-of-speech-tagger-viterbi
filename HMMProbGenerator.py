@@ -8,6 +8,12 @@ from PennTreebankPOSTags import POS_TAGS, START_MARKER, END_MARKER
 # Define constants
 UNK = '<UNK>' # symbol representing out-of-vocabulary words
 
+#===========================================================================#
+# HMMProbGenerator
+# GENERATES THE MODEL.
+#
+# Computes the resulting P(w_i | t_i) and P(t_i | t_i-1) probabilities.
+#===========================================================================#
 class HMMProbGenerator():
   def __init__(self, word_postag_pairs):
     print("== [HMMProbGenerator instantiated] ==")
@@ -46,8 +52,11 @@ class HMMProbGenerator():
     return [self.PROB_TAG_GIVEN_TAG, self.PROB_WORD_GIVEN_TAG]
 
   """
-  Generates P(t_i | t_i-1) bigram tags' occurrence probability matrix
-  Modifies self.PROB_TAG_GIVEN_TAG
+  Generates P(t_i | t_i-1) bigram tags' occurrence probability matrix.
+  Ensures that probabilities stored are the log probabilities as the magnitude
+  of the raw probabilities can cause underflow.
+
+  Modifies self.PROB_TAG_GIVEN_TAG, a matrix representing P(t_i | t_i-1), where rows: t_i-1, cols: t_i
   """
   def generate_prob_tag_given_tag(self):
     # Count number of tags at position (i) following another tag at position (i + 1)
@@ -73,10 +82,12 @@ class HMMProbGenerator():
     return None
 
   """
-  Generates P(w_i | t_i) word and POS tag occurrence probability matrix
-  Modifies self.PROB_WORD_GIVEN_TAG
+  Generates P(w_i | t_i) word and POS tag occurrence probability matrix.
+  Handles out-of-vocabulary words by using add-1 smoothing.
+  Ensures that probabilities stored are the log probabilities as the magnitude
+  of the raw probabilities can cause underflow.
 
-  Also handles out-of-vocabulary words by assigning them with a count of 1 for every tag
+  Modifies self.PROB_WORD_GIVEN_TAG, a matrix representing P(w_i | t_i),  where rows: t_i, cols: w_i
   """
   def generate_prob_word_given_tag(self):
     # Count number of words co-occurring with a given tag & mutate PROB_WORD_GIVEN_TAG matrix
@@ -88,7 +99,7 @@ class HMMProbGenerator():
 
     # Set count of out-of-vocabulary words to 1, normalized probability
     for postag in self.PROB_WORD_GIVEN_TAG:
-      self.PROB_WORD_GIVEN_TAG[postag][UNK] += 1
+      self.PROB_WORD_GIVEN_TAG[postag][UNK] += 0.5
 
     # Convert to probability from raw counts
     for postag in self.PROB_WORD_GIVEN_TAG:
