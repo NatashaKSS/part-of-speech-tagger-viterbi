@@ -1,7 +1,5 @@
-#### Done by: Natasha Koh
-#### Matric no.: A0130894B
+## Natural Language Processing Exploration
 
-# CS4248 Assignment 2
 Implementation of a Part-of-Speech tagger using the Viterbi algorithm with the Penn Treebank tag set.
 
 ### Instructions
